@@ -8,4 +8,9 @@
   justify-content: flex-start;
   align-items: flex-start;
   gap: 0.7rem;
+  padding: 0.5rem 2rem;
+}
+
+.mailCardActive {
+  border: 1px solid #108ee9 !important;
 }
