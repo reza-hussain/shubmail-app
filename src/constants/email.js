@@ -5,7 +5,7 @@ export const sampleEmails = [
   },
   {
     id: 1,
-    email: "ali_tera_baap@gmail.com",
+    email: "alireza@gmail.com",
   },
   {
     id: 2,
@@ -13,7 +13,7 @@ export const sampleEmails = [
   },
   {
     id: 3,
-    email: "ali_tera_baap@gmail.com",
+    email: "alireza@gmail.com",
   },
   {
     id: 4,
@@ -21,6 +21,6 @@ export const sampleEmails = [
   },
   {
     id: 5,
-    email: "ali_tera_baap@gmail.com",
+    email: "alireza@gmail.com",
   },
 ];

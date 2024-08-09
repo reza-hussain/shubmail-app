@@ -11,7 +11,7 @@ const MessageBox = ({ setMessageOpen }) => {
       id: "0",
     },
     {
-      name: "ali_tera_baap@gmail.com",
+      name: "alireza@gmail.com",
       id: "1",
     },
   ]);
