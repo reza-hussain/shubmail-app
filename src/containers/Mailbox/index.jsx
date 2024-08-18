@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   Card,
@@ -10,7 +10,6 @@ import {
   Menu,
   Space,
 } from "antd";
-import Header from "../../components/Header";
 
 import { sampleEmails } from "../../constants/email";
 import MessageBox from "../../components/MessageBox";
@@ -18,12 +17,14 @@ import MessageBox from "../../components/MessageBox";
 // styles
 import "antd/es/layout/style/index";
 import { useSidebarItems } from "../../constants/sidebar";
+import { getRequest } from "../../services/inbox";
 
 const { Sider, Content } = Layout;
 
 const Mailbox = () => {
   const [messageOpen, setMessageOpen] = useState(false);
-  const sidebarItems = useSidebarItems([]);
+  const [emails, setEmails] = useState([]);
+  const sidebarItems = useSidebarItems(emails);
   const [activeEmail, setActiveEmail] = useState("");
   const [checkedEmails, setCheckedEmails] = useState([]);
 
@@ -48,6 +49,16 @@ const Mailbox = () => {
       setCheckedEmails((prev) => [...prev, id]);
     }
   };
+
+  useEffect(() => {
+    (async () => {
+      const emailsList = await getRequest({
+        url: "/gmail/get-emails",
+      });
+
+      setEmails(emailsList);
+    })();
+  }, []);
 
   return (
     <div className="w-full max-h-[calc(100vh-64px)] h-full overflow-hidden pl-16">
@@ -77,6 +88,7 @@ const Mailbox = () => {
                 className={`mailCard cursor-pointer ${
                   activeEmail === email.id ? "mailCardActive" : ""
                 }`}
+                key={email.id}
                 onClick={() => setActiveEmail(email.id)}
               >
                 <Checkbox

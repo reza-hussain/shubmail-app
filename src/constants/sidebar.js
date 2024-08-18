@@ -3,6 +3,7 @@ import { useStateValue } from "../context/StateProvider";
 
 export const useSidebarItems = (children) => {
   const { inbox, setInbox } = useStateValue();
+
   return [
     {
       key: `inbox`,

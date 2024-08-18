@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Button, Checkbox, Input, Layout, Table } from "antd";
 import TableMenu from "../../components/TableMenu";
+import AddEmail from "../../components/AddEmail";
 
 const Emails = () => {
-  const [isAdd, setIsAdd] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const dataSource = [
     {
@@ -41,37 +42,22 @@ const Emails = () => {
   ];
 
   const handleButton = () => {
-    if (isAdd) {
-      // Enter function that calls api to add email
-
-      // finally
-      setIsAdd(false);
-    } else {
-      // Enable isAdd
-      setIsAdd(true);
-    }
+    setIsModalOpen(true);
   };
 
   return (
     <Layout className="w-full container bg-white !mt-5 flex flex-col justify-start items-center gap-4">
       <div className="w-full flex justify-between items-center gap-5">
         <Input
-          placeholder={isAdd ? "Enter new email" : "Search emails"}
+          placeholder={isModalOpen ? "Enter new email" : "Search emails"}
           className="w-full"
         />
-        {isAdd && (
-          <Button
-            onClick={() => setIsAdd(false)}
-            className="bg-white text-black hover:!bg-black hover:!text-white hover:!border-[#d9d9d9]"
-          >
-            Discard
-          </Button>
-        )}
+
         <Button
           onClick={handleButton}
           className="bg-white text-black hover:!bg-black hover:!text-white hover:!border-[#d9d9d9]"
         >
-          {isAdd ? "Save" : "Add New"}
+          Add New
         </Button>
       </div>
 
@@ -80,6 +66,10 @@ const Emails = () => {
         dataSource={dataSource}
         columns={columns}
         pagination={false}
+      />
+      <AddEmail
+        isModalOpen={isModalOpen}
+        handleCancel={() => setIsModalOpen(false)}
       />
     </Layout>
   );

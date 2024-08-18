@@ -14,3 +14,12 @@
 .mailCardActive {
   border: 1px solid #108ee9 !important;
 }
+
+.addEmailModal .ant-modal-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+
+  gap: 1rem;
+}
