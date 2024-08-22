@@ -10,10 +10,12 @@ const Header = () => {
     {
       label: "Inbox",
       onClick: () => navigate("/"),
+      key: "Inbox",
     },
     {
       label: "Emails",
       onClick: () => navigate("/emails"),
+      key: "Emails",
     },
   ];
 

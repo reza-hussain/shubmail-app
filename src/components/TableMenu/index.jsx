@@ -2,8 +2,6 @@ import { Dropdown, Space } from "antd";
 import React from "react";
 
 const TableMenu = ({ data }) => {
-  console.log({ data });
-
   const menuItems = [
     {
       label: "Delete Email",
