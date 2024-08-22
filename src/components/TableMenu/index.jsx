@@ -1,15 +1,15 @@
 import { Dropdown, Space } from "antd";
 import React from "react";
 
-const TableMenu = ({ data }) => {
+const TableMenu = ({ data, handleDelete, handleEdit }) => {
   const menuItems = [
     {
       label: "Delete Email",
-      onClick: () => alert("hello"),
+      onClick: () => handleDelete(),
     },
     {
       label: "Edit Email",
-      onClick: () => alert("hello"),
+      onClick: () => handleEdit(),
     },
   ];
 

@@ -27,6 +27,9 @@ const Header = () => {
         mode="horizontal"
         defaultSelectedKeys={["Inbox"]}
         items={navItems}
+        selectedKeys={
+          window.location?.pathname === "/emails" ? ["Emails"] : ["Inbox"]
+        }
         style={{
           flex: 1,
           minWidth: 0,
