@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Layout, Menu } from "antd";
+import { Layout, Menu, Radio } from "antd";
 
 // styles
 import "antd/es/layout/style/index";
@@ -16,9 +16,15 @@ const Mailbox = () => {
   const [emails, setEmails] = useState([]);
   const [checkedEmails, setCheckedEmails] = useState([]);
 
-  const { sidebarItems } = useSidebarItems(emails);
-  const { activeEmail, setActiveEmail, setEmailLoader, emailLoader } =
-    useStateValue();
+  const { sidebarItems, fetchData } = useSidebarItems(emails);
+  const {
+    activeEmail,
+    setActiveEmail,
+    setEmailLoader,
+    emailLoader,
+    setFilterType,
+    filterType,
+  } = useStateValue();
 
   const handleCheckbox = (id) => {
     const emailExists =
@@ -28,6 +34,18 @@ const Mailbox = () => {
       setCheckedEmails(checkedEmails?.filter((item) => item !== id));
     } else {
       setCheckedEmails((prev) => [...prev, id]);
+    }
+  };
+
+  const handleRadio = (e) => {
+    const type = e.target.value;
+
+    if (filterType === type) {
+      setFilterType(null);
+      fetchData(null, "all");
+    } else {
+      fetchData(null, type);
+      setFilterType(type);
     }
   };
 
@@ -53,22 +71,33 @@ const Mailbox = () => {
       <Layout className="w-full bg-white h-full">
         <Sider
           width={200}
-          className="!bg-white border-0 border-r-[1px] border-solid border-[rgba(5,5,5,0.06)] h-full"
+          className="!bg-white border-0 border-r-[1px] border-solid border-[rgba(5,5,5,0.06)] h-full relative"
         >
           {emailLoader ? (
             <p>Loading...</p>
           ) : (
-            <Menu
-              mode="inline"
-              defaultSelectedKeys={[activeEmail]}
-              style={{
-                height: "100%",
-                borderRight: 0,
-                background: "#fff",
-              }}
-              selectedKeys={[activeEmail]}
-              items={sidebarItems}
-            />
+            <>
+              <Menu
+                mode="inline"
+                defaultSelectedKeys={[activeEmail]}
+                style={{
+                  height: "100%",
+                  borderRight: 0,
+                  background: "#fff",
+                }}
+                selectedKeys={[activeEmail]}
+                items={sidebarItems}
+              />
+
+              <Radio.Group value={filterType} className="fixed bottom-10">
+                <Radio.Button onClick={handleRadio} value="unread">
+                  Unread
+                </Radio.Button>
+                <Radio.Button onClick={handleRadio} value="sent">
+                  Sent
+                </Radio.Button>
+              </Radio.Group>
+            </>
           )}
         </Sider>
 

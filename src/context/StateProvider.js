@@ -11,6 +11,8 @@ export const StateProvider = ({ children }) => {
   const [emailLoader, setEmailLoader] = useState(false);
   const [emailData, setEmailData] = useState("");
   const [pagination, setPagination] = useState(null);
+  const [filterType, setFilterType] = useState(null);
+  const [search, setSearch] = useState(null);
 
   return (
     <StateContext.Provider
@@ -31,6 +33,10 @@ export const StateProvider = ({ children }) => {
         setEmailData,
         pagination,
         setPagination,
+        filterType,
+        setFilterType,
+        search,
+        setSearch,
       }}
     >
       {children}

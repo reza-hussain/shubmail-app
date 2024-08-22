@@ -10,19 +10,23 @@ export const useSidebarItems = (children) => {
     setInboxLoader,
     activeEmail,
     inboxLoader,
-
     setPagination,
+    search,
   } = useStateValue();
 
-  const fetchData = async (data) => {
+  const fetchData = async (data, type) => {
     data?.key && setActiveEmail(data?.key);
     setInboxLoader(true);
     try {
-      const response = await getRequest({
-        url: `/gmail/${
-          data?.key ?? activeEmail
-        }/read-all-emails?page=${currentPage}&pageSize=10`,
-      });
+      const response =
+        (data?.key || activeEmail) &&
+        (await getRequest({
+          url: `/gmail/${
+            data?.key ?? activeEmail
+          }/read-all-emails?page=${currentPage}&pageSize=10&type=${
+            type ?? "all"
+          }${search ? `?search=${search}` : ""}`,
+        }));
       setInbox(response?.messages);
       setPagination(response?.pagination);
     } catch (error) {
@@ -63,34 +67,6 @@ export const useSidebarItems = (children) => {
             disabled: inboxLoader,
           };
         }),
-      },
-      {
-        key: "more",
-        label: "More",
-        children: [
-          {
-            key: "unread",
-            label: "Unread Emails",
-            style: {
-              background: "#fff",
-              border: "none",
-            },
-            onTitleClick: () => {
-              setInbox();
-            },
-          },
-          {
-            key: "sent",
-            label: "Sent Emails",
-            style: {
-              background: "#fff",
-              border: "none",
-            },
-            onTitleClick: () => {
-              setInbox();
-            },
-          },
-        ],
       },
     ],
     fetchData,

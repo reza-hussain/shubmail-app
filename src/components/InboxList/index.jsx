@@ -11,6 +11,9 @@ import { useStateValue } from "../../context/StateProvider";
 import { postRequest } from "../../services/inbox";
 import { useSidebarItems } from "../../constants/sidebar";
 
+// hooks
+import useDebounce from "../../hooks/useDebounce.js";
+
 const InboxList = ({
   // setActiveEmail,
   handleCheckbox,
@@ -19,12 +22,12 @@ const InboxList = ({
   const {
     inbox,
     inboxLoader,
-    setInbox,
-    setEmailData,
-    emailData,
+    pagination,
     activeEmail,
     setCurrentPage,
     currentPage,
+    search,
+    setSearch,
   } = useStateValue();
 
   const { fetchData } = useSidebarItems();
@@ -69,6 +72,14 @@ const InboxList = ({
     }
   };
 
+  useDebounce(
+    () => {
+      fetchData();
+    },
+    [search],
+    800
+  );
+
   useEffect(() => {
     const firstSelectedEmail = inbox?.filter(
       (item) => item?.id === checkedEmails?.[0]
@@ -85,7 +96,10 @@ const InboxList = ({
   return (
     <Layout className="max-w-[30%] bg-white h-full p-4">
       <Flex className="h-full overflow-scroll gap-4 relative" vertical>
-        <Input placeholder="Search emails" />
+        <Input
+          placeholder="Search emails"
+          onChange={(e) => setSearch(e?.target?.value)}
+        />
         {checkedEmails?.length > 0 && (
           <div className="w-full flex justify-end items-center gap-4 bg-white z-[100]">
             <Button onClick={handleMarkAsUnread}>
@@ -119,8 +133,9 @@ const InboxList = ({
         align="center"
         className="pt-8 pb-4"
         current={currentPage}
-        total={60}
-        defaultCurrent={6}
+        total={pagination?.totalMessages}
+        // defaultCurrent={6}
+
         showSizeChanger={false}
         onChange={(page) => setCurrentPage(page)}
       />
