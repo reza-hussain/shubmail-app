@@ -12,6 +12,7 @@ export const useSidebarItems = (children) => {
     inboxLoader,
     setPagination,
     search,
+    emailLoader,
   } = useStateValue();
 
   const fetchData = async (data, type) => {
@@ -57,7 +58,8 @@ export const useSidebarItems = (children) => {
     sidebarItems: [
       {
         key: `inbox`,
-        label: "Inbox",
+        label: emailLoader ? "Loading..." : "Inbox",
+
         children: children?.map((child) => {
           return {
             key: child?._id,

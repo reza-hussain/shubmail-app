@@ -73,32 +73,26 @@ const Mailbox = () => {
           width={200}
           className="!bg-white border-0 border-r-[1px] border-solid border-[rgba(5,5,5,0.06)] h-full relative"
         >
-          {emailLoader ? (
-            <p>Loading...</p>
-          ) : (
-            <>
-              <Menu
-                mode="inline"
-                defaultSelectedKeys={[activeEmail]}
-                style={{
-                  height: "100%",
-                  borderRight: 0,
-                  background: "#fff",
-                }}
-                selectedKeys={[activeEmail]}
-                items={sidebarItems}
-              />
+          <Menu
+            mode="inline"
+            defaultSelectedKeys={[activeEmail]}
+            style={{
+              height: "100%",
+              borderRight: 0,
+              background: "#fff",
+            }}
+            selectedKeys={[activeEmail]}
+            items={sidebarItems}
+          />
 
-              <Radio.Group value={filterType} className="fixed bottom-10">
-                <Radio.Button onClick={handleRadio} value="unread">
-                  Unread
-                </Radio.Button>
-                <Radio.Button onClick={handleRadio} value="sent">
-                  Sent
-                </Radio.Button>
-              </Radio.Group>
-            </>
-          )}
+          <Radio.Group value={filterType} className="fixed bottom-10">
+            <Radio.Button onClick={handleRadio} value="unread">
+              Unread
+            </Radio.Button>
+            <Radio.Button onClick={handleRadio} value="sent">
+              Sent
+            </Radio.Button>
+          </Radio.Group>
         </Sider>
 
         <InboxList
