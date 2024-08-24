@@ -1,10 +1,20 @@
-import { Button, Input, Modal, Radio } from "antd";
+import { useState } from "react";
+import { Modal } from "antd";
 import Outlook from "../../assets/outlook.svg";
 import Gmail from "../../assets/Gmail.svg";
-import { useState } from "react";
+import { postRequest } from "../../services/inbox";
 
-const AddEmail = ({ isModalOpen, handleOk, handleCancel }) => {
+const AddEmail = ({ isModalOpen, handleCancel }) => {
   const [emailProvider, setEmailProvider] = useState("");
+  // const [email, setEmail] = useState("");
+
+  const handleOk = async () => {
+    const response = await postRequest({
+      url: "/gmail/auth",
+    });
+
+    window.location.href = response;
+  };
 
   return (
     <Modal
@@ -16,7 +26,7 @@ const AddEmail = ({ isModalOpen, handleOk, handleCancel }) => {
       okText="Add Email"
     >
       <div className="w-full flex justify-center items-center gap-5">
-        <div
+        <button
           onClick={() => setEmailProvider("outlook")}
           className={`w-[50%] h-[80px] p-2 cursor-pointer flex justify gap-5 justify-center items-center  border-solid ${
             emailProvider === "outlook" ? "border-blue-500" : "border-[#d9d9d9]"
@@ -27,8 +37,8 @@ const AddEmail = ({ isModalOpen, handleOk, handleCancel }) => {
             <p className="text-gray-500">Sign in with</p>
             <p className="text-2xl font-medium">Outlook</p>
           </div>
-        </div>
-        <div
+        </button>
+        <button
           onClick={() => setEmailProvider("gmail")}
           className={`w-[50%] h-[80px] p-2 cursor-pointer flex justify gap-5 justify-center items-center  border-solid ${
             emailProvider === "gmail" ? "border-blue-500" : "border-[#d9d9d9]"
@@ -39,10 +49,14 @@ const AddEmail = ({ isModalOpen, handleOk, handleCancel }) => {
             <p className="text-gray-500">Sign in with</p>
             <p className="text-2xl font-medium">Gmail</p>
           </div>
-        </div>
+        </button>
       </div>
 
-      <Input placeholder="Enter email address" />
+      {/* <Input
+        placeholder="Enter email address"
+        onChange={(e) => setEmail(e?.target?.value)}
+        value={email}
+      /> */}
     </Modal>
   );
 };

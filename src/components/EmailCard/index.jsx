@@ -5,16 +5,10 @@ import moment from "moment";
 import { getRequest } from "../../services/inbox";
 import { useStateValue } from "../../context/StateProvider";
 
-const EmailCard = ({ checkedEmails, handleCheckbox, mail, index }) => {
+const EmailCard = ({ checkedEmails, handleCheckbox, mail }) => {
   const [isUnread, setIsUnread] = useState(false);
   const { activeEmail, setEmailData, setMailLoader, emailData } =
     useStateValue();
-
-  const filterDetails = (response, key) => {
-    return response?.payload?.headers?.filter(
-      (data) => data?.name.toLowerCase() === key?.toLowerCase()
-    )?.[0]?.value;
-  };
 
   const handleClick = async () => {
     if (mail?.id !== emailData?.id) {
@@ -36,14 +30,24 @@ const EmailCard = ({ checkedEmails, handleCheckbox, mail, index }) => {
           : response?.payload?.body?.data;
         const body = base64urlData?.replace(/-/g, "+")?.replace(/_/g, "/");
 
+        console.log();
+
         const details = {
-          from: filterDetails(response, "from"),
-          to: filterDetails(response, "to"),
-          subject: filterDetails(response, "subject"),
-          date: filterDetails(response, "date"),
+          from: response?.emailMetadata?.from,
+          to: response?.emailMetadata?.to?.split(","),
+          subject: response?.emailMetadata?.subject,
+          date: response?.emailMetadata?.date,
           body: atob(body),
           id: response.id,
           isUnread,
+          cc:
+            response?.emailMetadata?.cc?.length > 0
+              ? response?.emailMetadata?.cc?.split(",")
+              : "",
+          bcc:
+            response?.emailMetadata?.bcc?.length > 0
+              ? response?.emailMetadata?.bcc?.split(",")
+              : "",
         };
         setEmailData(details);
       } catch (error) {

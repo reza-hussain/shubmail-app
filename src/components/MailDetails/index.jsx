@@ -1,7 +1,18 @@
-import { useState } from "react";
-import { Button, Dropdown, Empty, Layout, Skeleton, Space } from "antd";
+import { useEffect, useState } from "react";
+import {
+  Button,
+  Dropdown,
+  Empty,
+  Layout,
+  notification,
+  Skeleton,
+  Space,
+} from "antd";
 import { Content } from "antd/es/layout/layout";
 import parse from "html-react-parser";
+
+// services
+import { postRequest } from "../../services/inbox";
 
 // components
 import MessageBox from "../MessageBox";
@@ -9,13 +20,22 @@ import MessageBox from "../MessageBox";
 // context
 import { useStateValue } from "../../context/StateProvider";
 
-// services
-import { postRequest } from "../../services/inbox";
-
 const MailDetails = ({ menu, messageOpen, setMessageOpen }) => {
   const { emailData, setEmailData, mailLoader, activeEmail, inbox, setInbox } =
     useStateValue();
   const [emailsToSend, setEmailsToSend] = useState([]);
+  const [ccEmails, setCcEmails] = useState([]);
+  const [bccEmails, setBccEmails] = useState([]);
+  const [editorState, setEditorState] = useState("");
+
+  const [api, contextHolder] = notification.useNotification();
+
+  const handleToast = (type, message) => {
+    api[type]({
+      message,
+    });
+  };
+
   const [isLoading, setIsLoading] = useState(false);
 
   const menuItems = [
@@ -30,39 +50,57 @@ const MailDetails = ({ menu, messageOpen, setMessageOpen }) => {
   ];
 
   const handleSend = async () => {
-    if (messageOpen === 1) {
-      handleReply();
-    }
-
-    if (messageOpen === 2) {
-      handleReplyToAll();
-    }
-
     if (messageOpen === 3) {
       handleForward();
+    } else {
+      handleReply();
     }
   };
 
   const handleReply = async () => {
-    if (Array.isArray(emailData?.to)) {
-      setEmailsToSend(emailData?.to);
-    } else {
-      setEmailsToSend([emailData?.to]);
-    }
-  };
+    let data = {
+      messageId: emailData?.id,
+      to: emailsToSend,
+      from: emailData?.to,
+      subject: emailData?.subject,
+      message: editorState,
+    };
 
-  const handleReplyToAll = async () => {
-    if (Array.isArray(emailData?.to)) {
-      setEmailsToSend(emailData?.to);
-    } else {
-      setEmailsToSend([emailData?.to]);
+    if (messageOpen === 2) {
+      data = {
+        ...data,
+        bcc: emailData?.bcc,
+        cc: emailData?.cc,
+        subject: emailData?.subject,
+      };
+    }
+
+    setIsLoading(true);
+    try {
+      await postRequest({
+        url: `/gmail/${activeEmail}/reply`,
+        data,
+      });
+
+      handleToast("success", "Email forwarded successfully");
+
+      setMessageOpen(false);
+    } catch (error) {
+      handleToast("Failed to forward email", false);
+      throw new Error(error);
+    } finally {
+      setIsLoading(false);
+      setEmailsToSend([]);
+      setBccEmails([]);
+      setCcEmails([]);
+      setEditorState("");
     }
   };
 
   const handleForward = async () => {
     setIsLoading(true);
     try {
-      const response = await postRequest({
+      await postRequest({
         url: `/gmail/${activeEmail}/forward-emails`,
         // headers: {
         //   "Content-Type": "application/json",
@@ -76,8 +114,11 @@ const MailDetails = ({ menu, messageOpen, setMessageOpen }) => {
         },
       });
 
+      handleToast("success", "Email forwarded successfully");
+
       setMessageOpen(false);
     } catch (error) {
+      handleToast("Failed to forward email", false);
       throw new Error(error);
     } finally {
       setIsLoading(false);
@@ -127,11 +168,40 @@ const MailDetails = ({ menu, messageOpen, setMessageOpen }) => {
     });
   };
 
+  const onClose = () => {
+    setIsLoading(false);
+    setEmailsToSend([]);
+    setBccEmails([]);
+    setCcEmails([]);
+    setEditorState("");
+  };
+
+  useEffect(() => {
+    if (messageOpen === 2) {
+      emailData?.bcc?.length > 0 && setBccEmails([emailData?.bcc]);
+      emailData?.cc?.length > 0 && setCcEmails([emailData?.cc]);
+      setEmailsToSend([emailData?.from]);
+    }
+    if (messageOpen === 1) {
+      setEmailsToSend([emailData?.from]);
+    }
+
+    if (messageOpen === null) onClose();
+
+    // eslint-disable-next-line
+  }, [messageOpen]);
+
+  useEffect(() => {
+    setMessageOpen(false);
+
+    // eslint-disable-next-line
+  }, [emailData]);
+
   return (
     <Layout className="max-w-[60%] p-4 bg-white h-full">
       {emailData ? (
         <Content className="w-full flex justify-center items-start h-full overflow-hidden">
-          <div className="w-full flex flex-col justify-start items-start h-full gap-5">
+          <div className="w-full flex flex-col justify-start items-start h-full gap-5 relative">
             {/* MAIL HEADER */}
             <div className="w-full py-4 flex justify-between items-center border-0 border-solid border-b-2 border-[rgba(5,5,5,0.06)]">
               <div className="w-full flex flex-col justify-start items-start gap-4 ">
@@ -140,10 +210,52 @@ const MailDetails = ({ menu, messageOpen, setMessageOpen }) => {
                 ) : (
                   <h4>{emailData?.from}</h4>
                 )}
-                {mailLoader ? (
-                  <Skeleton.Input size="small" className="!w-full" active />
-                ) : (
-                  <p>{emailData?.to}</p>
+                <div className="w-full flex justify-start items-center gap-4 flex-wrap">
+                  <p className="font-bold">To</p>
+                  {mailLoader ? (
+                    <Skeleton.Input size="small" className="!w-full" active />
+                  ) : (
+                    emailData?.to?.map(
+                      (item) =>
+                        item?.length > 0 && (
+                          <p className="py-1 px-2 bg-gray-100">{item}</p>
+                        )
+                    )
+                  )}
+                </div>
+                {emailData?.cc?.length > 0 && (
+                  <div className="w-full flex justify-start items-center gap-4 flex-wrap">
+                    {mailLoader ? (
+                      <Skeleton.Input size="small" className="!w-full" active />
+                    ) : (
+                      <>
+                        <p className="font-bold">CC:</p>
+                        {emailData?.cc?.map(
+                          (item) =>
+                            item?.length > 0 && (
+                              <p className="py-1 px-2 bg-gray-100">{item}</p>
+                            )
+                        )}
+                      </>
+                    )}
+                  </div>
+                )}
+                {emailData?.bcc?.length > 0 && (
+                  <div className="w-full flex justify-start items-center gap-4 flex-wrap">
+                    {mailLoader ? (
+                      <Skeleton.Input size="small" className="!w-full" active />
+                    ) : (
+                      <>
+                        <p className="font-bold">BCC:</p>
+                        {emailData?.bcc?.map(
+                          (item) =>
+                            item?.length > 0 && (
+                              <p className="py-1 px-2 bg-gray-100">{item}</p>
+                            )
+                        )}
+                      </>
+                    )}
+                  </div>
                 )}
               </div>
               <Dropdown
@@ -157,20 +269,35 @@ const MailDetails = ({ menu, messageOpen, setMessageOpen }) => {
               </Dropdown>
             </div>
             {/* EMAIL BODY */}
-            <div className="w-full basis-[80%] border overflow-auto">
+            <div
+              className={`w-full ${
+                messageOpen ? "lg:basis-[20%] 2xl:basis-[30%]" : "basis-[80%]"
+              } border overflow-auto transition-all duration-200 ease-linear ${
+                messageOpen ? "opacity-50" : "opacity-100"
+              }`}
+            >
               {mailLoader ? <Skeleton active /> : parse(emailData?.body ?? "")}
             </div>
 
             {/* REPLY BOX */}
+
             {messageOpen && !mailLoader && (
-              <MessageBox
-                messageOpen={messageOpen}
-                setMessageOpen={setMessageOpen}
-                emailsToSend={emailsToSend}
-                setEmailsToSend={setEmailsToSend}
-                body={messageOpen === 3 ? emailData?.body : null}
-                mailSubject={emailData?.subject ?? null}
-              />
+              <div className="w-full h-[450px] bg-white z-[100]">
+                <MessageBox
+                  messageOpen={messageOpen}
+                  setMessageOpen={setMessageOpen}
+                  emailsToSend={emailsToSend}
+                  setEmailsToSend={setEmailsToSend}
+                  body={messageOpen === 3 ? emailData?.body : null}
+                  mailSubject={emailData?.subject ?? null}
+                  editorState={editorState}
+                  setEditorState={setEditorState}
+                  bccEmails={bccEmails}
+                  ccEmails={ccEmails}
+                  setBccEmails={setBccEmails}
+                  setCcEmails={setCcEmails}
+                />
+              </div>
             )}
 
             {!mailLoader && (
@@ -185,8 +312,19 @@ const MailDetails = ({ menu, messageOpen, setMessageOpen }) => {
                   </>
                 ) : (
                   <>
-                    <Button onClick={handleSend}>Send Email</Button>
-                    <Button onClick={() => setMessageOpen(null)}>
+                    <Button
+                      onClick={handleSend}
+                      disabled={!emailsToSend?.length}
+                      loading={isLoading}
+                    >
+                      Send Email
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setMessageOpen(null);
+                        setIsLoading(false);
+                      }}
+                    >
                       Discard
                     </Button>
                   </>
@@ -194,6 +332,7 @@ const MailDetails = ({ menu, messageOpen, setMessageOpen }) => {
               </div>
             )}
           </div>
+          {contextHolder}
         </Content>
       ) : !emailData && mailLoader ? (
         <Content className="w-full flex justify-center items-start h-full overflow-hidden">

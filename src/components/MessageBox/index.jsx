@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import parse from "html-react-parser";
 
-import { Input, Tag } from "antd";
+import { Input } from "antd";
 import Close from "@ant-design/icons/CloseOutlined";
-import { v4 as uuidv4 } from "uuid";
-
-const { TextArea } = Input;
+import Editor from "../Editor";
+import "react-quill/dist/quill.snow.css";
+import EmailInput from "../EmailInput";
 
 const MessageBox = ({
   setMessageOpen,
@@ -13,73 +13,90 @@ const MessageBox = ({
   setEmailsToSend,
   body,
   mailSubject,
+  setEditorState,
+  editorState,
+  ccEmails,
+  bccEmails,
+  setBccEmails,
+  setCcEmails,
 }) => {
   const [inputVal, setInputVal] = useState("");
+  const [ccVal, setCcVal] = useState("");
+  const [bccVal, setBccVal] = useState("");
+
+  const [bccExpanded, setBccExpanded] = useState(false);
+  const [ccExpanded, setCcExpanded] = useState(false);
+
   const [subject, setSubject] = useState("");
-  const [error, setError] = useState(false);
-
-  const onEmailSubmit = (e) => {
-    const emailRegex =
-      /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/; // eslint-disable-line
-    if (e.key === "Enter") {
-      if (emailRegex.test(e.target.value)) {
-        setEmailsToSend((prev) => [...prev, e.target.value]);
-
-        setInputVal("");
-        setError(false);
-      } else {
-        setError(true);
-      }
-    }
-  };
-
-  const handleTagRemove = (tagId) => {
-    const updatedEmails = emailsToSend?.filter((email) => email.id !== tagId);
-
-    setEmailsToSend(updatedEmails);
-  };
 
   return (
     <div
-      className={`w-full relative flex flex-col justify-start items-start border-solid border-[rgba(5,5,5,0.06)] p-4`}
+      className={`w-full max-h-full h-full overflow-auto z-[200] relative flex flex-col justify-start items-start rounded-xl border-solid border-[rgba(5,5,5,0.06)] p-4`}
     >
-      <span
-        className="absolute right-5 top-5 cursor-pointer z-50"
-        onClick={() => setMessageOpen(false)}
-      >
-        <Close />
-      </span>
-      <div className="w-full relative flex flex-wrap justify-start items-center gap-x-1 gap-y-4">
-        <div className="basis-full">To</div>
-        {emailsToSend?.map((email) => (
-          <Tag closeIcon onClose={() => handleTagRemove(email)}>
-            {email}
-          </Tag>
-        ))}
-        <Input
-          onKeyDown={onEmailSubmit}
-          placeholder="Add email"
+      <div className="absolute right-5 top-5 cursor-pointer z-50 flex justify-center items-center gap-2">
+        <span
+          className={`text-sm hover:text-blue-600 ${
+            ccExpanded ? "text-blue-600" : ""
+          }`}
+          onClick={() => {
+            setCcExpanded(!ccExpanded);
+          }}
+        >
+          CC
+        </span>
+        <span
+          className={`text-sm hover:text-blue-600 ${
+            bccExpanded ? "text-blue-600" : ""
+          }`}
+          onClick={() => setBccExpanded(!bccExpanded)}
+        >
+          BCC
+        </span>
+        <span className="ml-5" onClick={() => setMessageOpen(false)}>
+          <Close />
+        </span>
+      </div>
+      <div className="w-full h-full relative flex flex-col justify-start items-start gap-x-1 gap-y-4 pt-12">
+        <EmailInput
+          items={emailsToSend}
+          setItems={setEmailsToSend}
           value={inputVal}
-          onChange={(e) => setInputVal(e.target.value)}
-          status={error ? "error" : ""}
+          setValue={setInputVal}
+          title="To"
         />
 
+        {(ccEmails?.length > 0 || ccExpanded) && (
+          <EmailInput
+            items={ccEmails}
+            setItems={setCcEmails}
+            value={ccVal}
+            setValue={setCcVal}
+            title="CC"
+          />
+        )}
+
+        {(bccEmails?.length > 0 || bccExpanded) && (
+          <EmailInput
+            items={bccEmails}
+            setItems={setBccEmails}
+            value={bccVal}
+            setValue={setBccVal}
+            title="BCC"
+          />
+        )}
+
         <Input
+          className="hidden"
           placeholder="Enter subject"
           value={mailSubject ?? subject}
           disabled={mailSubject}
           onChange={(e) => setSubject(e.target.value)}
         />
+
         {body ? (
-          <div className="w-full overflow-auto max-h-[250px] ">
-            <p className="w-full p-4 text-center">
-              ------------------------------ Forwarded message
-              ------------------------------
-            </p>
-            {parse(body)}
-          </div>
+          <div className="w-full max-h-full ">{parse(body)}</div>
         ) : (
-          <TextArea placeholder="Enter message" style={{ height: 250 }} />
+          <Editor value={editorState} setValue={setEditorState} />
         )}
       </div>
     </div>

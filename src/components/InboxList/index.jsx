@@ -11,9 +11,6 @@ import { useStateValue } from "../../context/StateProvider";
 import { postRequest } from "../../services/inbox";
 import { useSidebarItems } from "../../constants/sidebar";
 
-// hooks
-import useDebounce from "../../hooks/useDebounce.js";
-
 const InboxList = ({
   // setActiveEmail,
   handleCheckbox,
@@ -26,7 +23,7 @@ const InboxList = ({
     activeEmail,
     setCurrentPage,
     currentPage,
-    search,
+
     setSearch,
   } = useStateValue();
 
@@ -71,14 +68,6 @@ const InboxList = ({
       fetchData();
     }
   };
-
-  useDebounce(
-    () => {
-      fetchData();
-    },
-    [search],
-    800
-  );
 
   useEffect(() => {
     const firstSelectedEmail = inbox?.filter(
@@ -135,7 +124,7 @@ const InboxList = ({
         current={currentPage}
         total={pagination?.totalMessages}
         // defaultCurrent={6}
-
+        disabled={inboxLoader}
         showSizeChanger={false}
         onChange={(page) => setCurrentPage(page)}
       />

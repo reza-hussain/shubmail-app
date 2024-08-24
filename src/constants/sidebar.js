@@ -51,7 +51,7 @@ export const useSidebarItems = (children) => {
 
     return () => clearTimeout(debounce);
     // eslint-disable-next-line
-  }, [currentPage]);
+  }, [currentPage, search]);
 
   return {
     sidebarItems: [

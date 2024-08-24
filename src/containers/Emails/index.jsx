@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
-import { Button, Checkbox, Input, Layout, Table } from "antd";
+import { Button, Input, Layout, Table } from "antd";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 // components
 import TableMenu from "../../components/TableMenu";
 import AddEmail from "../../components/AddEmail";
 
 // services
-import { deleteRequest, getRequest } from "../../services/inbox";
+import { deleteRequest, getRequest, postRequest } from "../../services/inbox";
 import useDebounce from "../../hooks/useDebounce";
 
 const Emails = () => {
@@ -15,6 +16,9 @@ const Emails = () => {
   const [loading, setLoading] = useState(false);
   const [dataSource, setDataSource] = useState([]);
   const [selectedEmails, setSelectedEmails] = useState([]);
+
+  const [params] = useSearchParams();
+  const router = useNavigate();
 
   const columns = [
     {
@@ -92,10 +96,22 @@ const Emails = () => {
   );
 
   useEffect(() => {
-    fetchEmails();
+    const code = params.get("code");
+    const url = window.location.pathname;
 
+    if (code) {
+      (async () => {
+        await postRequest({
+          url: "/gmail/oauth2callback",
+          data: {
+            code: code,
+          },
+        });
+        router(url);
+      })();
+    }
     // eslint-disable-next-line
-  }, []);
+  }, [params]);
 
   return (
     <Layout className="w-full container bg-white !mt-5 flex flex-col justify-start items-center gap-4">
