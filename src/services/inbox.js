@@ -1,6 +1,6 @@
 import axios from "axios";
 
-axios.defaults.baseURL = "https://google-mail-system-1.onrender.com";
+axios.defaults.baseURL = "https://google-mail-system-1.onrender.com/api";
 
 // axios.defaults.baseURL = "http://localhost:4000/api";
 
