@@ -21,7 +21,7 @@ const Mailbox = () => {
     activeEmail,
     setActiveEmail,
     setEmailLoader,
-    emailLoader,
+
     setFilterType,
     filterType,
   } = useStateValue();
