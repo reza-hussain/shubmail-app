@@ -1,9 +1,8 @@
 import axios from "axios";
 
-// axios.defaults.baseURL =
-//   "http://ec2-3-227-193-236.compute-1.amazonaws.com:8887/api";
+axios.defaults.baseURL = "https://google-mail-system-1.onrender.com";
 
-axios.defaults.baseURL = "http://localhost:4000/api";
+// axios.defaults.baseURL = "http://localhost:4000/api";
 
 const fetchData = async (options) => {
   try {
