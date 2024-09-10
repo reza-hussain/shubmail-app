@@ -197,6 +197,21 @@ const MailDetails = ({ menu, messageOpen, setMessageOpen }) => {
     // eslint-disable-next-line
   }, [emailData]);
 
+  const saveAsDraft = async () => {
+    const draft = await postRequest({
+      url: `/gmail/${activeEmail}/mark-read-unread-emails`,
+      data: JSON.stringify({
+        to: emailsToSend,
+        subject: emailData?.subject,
+        message: editorState,
+      }),
+    });
+
+    console.log({ draft });
+
+    return draft;
+  };
+
   return (
     <Layout className="max-w-[60%] p-4 bg-white h-full">
       {emailData ? (
@@ -327,6 +342,7 @@ const MailDetails = ({ menu, messageOpen, setMessageOpen }) => {
                     >
                       Discard
                     </Button>
+                    <Button onClick={saveAsDraft}>Save as Draft</Button>
                   </>
                 )}
               </div>

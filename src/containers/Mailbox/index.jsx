@@ -85,12 +85,44 @@ const Mailbox = () => {
             items={sidebarItems}
           />
 
-          <Radio.Group value={filterType} className="fixed bottom-10">
-            <Radio.Button onClick={handleRadio} value="unread">
+          <Radio.Group
+            value={filterType}
+            className="fixed bottom-10 flex-col flex max-w-[200px] w-[200px] mx-auto"
+          >
+            <Radio.Button
+              onClick={handleRadio}
+              value="unread"
+              className="w-full !border-none"
+            >
               Unread
             </Radio.Button>
-            <Radio.Button onClick={handleRadio} value="sent">
+            <Radio.Button
+              onClick={handleRadio}
+              value="sent"
+              className="w-full !border-none"
+            >
               Sent
+            </Radio.Button>
+            <Radio.Button
+              onClick={handleRadio}
+              value="spam"
+              className="w-full !border-none"
+            >
+              Junk/Spam
+            </Radio.Button>
+            <Radio.Button
+              onClick={handleRadio}
+              value="trash"
+              className="w-full !border-none"
+            >
+              Deleted
+            </Radio.Button>
+            <Radio.Button
+              onClick={handleRadio}
+              value="drafts"
+              className="w-full !border-none"
+            >
+              Drafts
             </Radio.Button>
           </Radio.Group>
         </Sider>

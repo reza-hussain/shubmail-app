@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import parse from "html-react-parser";
-
 import { Input } from "antd";
+
 import Close from "@ant-design/icons/CloseOutlined";
 import Editor from "../Editor";
-import "react-quill/dist/quill.snow.css";
 import EmailInput from "../EmailInput";
+
+import "react-quill/dist/quill.snow.css";
 
 const MessageBox = ({
   setMessageOpen,

@@ -23,3 +23,7 @@
 .scrollbar-hidden::-webkit-scrollbar {
   display: none;
 }
+
+.ant-radio-button-wrapper:not(:first-child)::before {
+  content: none;
+}

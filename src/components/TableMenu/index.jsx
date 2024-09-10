@@ -5,7 +5,7 @@ const TableMenu = ({ data, handleDelete, handleEdit }) => {
   const menuItems = [
     {
       label: "Delete Email",
-      onClick: () => handleDelete(),
+      onClick: () => handleDelete(data.key),
     },
     {
       label: "Edit Email",

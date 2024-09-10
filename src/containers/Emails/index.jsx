@@ -70,12 +70,12 @@ const Emails = () => {
     setSelectedEmails(ids);
   };
 
-  const handleDelete = async () => {
+  const handleDelete = async (email) => {
     try {
       await deleteRequest({
         url: `/gmail/delete-emails`,
         data: {
-          emailIds: selectedEmails,
+          emailIds: email ? [email] : selectedEmails,
         },
       });
     } catch (error) {
