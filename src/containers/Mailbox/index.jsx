@@ -3,7 +3,7 @@ import { Layout, Menu, Radio } from "antd";
 
 // styles
 import "antd/es/layout/style/index";
-import { useSidebarItems } from "../../constants/sidebar";
+import { useSidebarItems } from "../../hooks/sidebar";
 import { getRequest } from "../../services/inbox";
 import InboxList from "../../components/InboxList";
 import MailDetails from "../../components/MailDetails";

@@ -10,6 +10,21 @@ const EmailCard = ({ checkedEmails, handleCheckbox, mail }) => {
   const { activeEmail, setEmailData, setMailLoader, emailData } =
     useStateValue();
 
+  const decodeResponse = (response) => {
+    const otherMimeTypes = ["multipart/alternative", "multipart/report"];
+
+    // eslint-disable-next-line
+    const data = response?.map((item) => {
+      if (item?.mimeType === "text/html") {
+        return item?.body?.data;
+      } else if (otherMimeTypes?.includes(item?.mimeType)) {
+        return decodeResponse(item?.parts);
+      }
+    });
+
+    return data?.[1];
+  };
+
   const handleClick = async () => {
     if (mail?.id !== emailData?.id) {
       setMailLoader(true);
@@ -25,12 +40,13 @@ const EmailCard = ({ checkedEmails, handleCheckbox, mail }) => {
         setIsUnread(isUnread);
 
         // Decoding the email body
+
+        decodeResponse(response?.payload?.parts);
+
         const base64urlData = response?.payload?.parts
-          ? response?.payload?.parts?.[1].body?.data
+          ? decodeResponse(response?.payload?.parts)
           : response?.payload?.body?.data;
         const body = base64urlData?.replace(/-/g, "+")?.replace(/_/g, "/");
-
-        console.log();
 
         const details = {
           from: response?.emailMetadata?.from,

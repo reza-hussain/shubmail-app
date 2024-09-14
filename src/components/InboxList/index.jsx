@@ -9,7 +9,7 @@ import { useStateValue } from "../../context/StateProvider";
 
 // services
 import { postRequest } from "../../services/inbox";
-import { useSidebarItems } from "../../constants/sidebar";
+import { useSidebarItems } from "../../hooks/sidebar";
 
 const InboxList = ({
   // setActiveEmail,
