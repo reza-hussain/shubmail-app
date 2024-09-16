@@ -10,21 +10,6 @@ const EmailCard = ({ checkedEmails, handleCheckbox, mail }) => {
   const { activeEmail, setEmailData, setMailLoader, emailData } =
     useStateValue();
 
-  const decodeResponse = (response) => {
-    const otherMimeTypes = ["multipart/alternative", "multipart/report"];
-
-    // eslint-disable-next-line
-    const data = response?.map((item) => {
-      if (item?.mimeType === "text/html") {
-        return item?.body?.data;
-      } else if (otherMimeTypes?.includes(item?.mimeType)) {
-        return decodeResponse(item?.parts);
-      }
-    });
-
-    return data?.[1];
-  };
-
   const handleClick = async () => {
     if (mail?.id !== emailData?.id) {
       setMailLoader(true);
