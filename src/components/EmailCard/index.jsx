@@ -39,13 +39,34 @@ const EmailCard = ({ checkedEmails, handleCheckbox, mail }) => {
         );
         setIsUnread(isUnread);
 
-        // Decoding the email body
+        const extractHtmlPart = (payload) => {
+          // Recursive helper function
+          const findHtmlPart = (parts) => {
+            if (!parts || !Array.isArray(parts)) return null; // Guard clause to ensure parts is an array
 
-        decodeResponse(response?.payload?.parts);
+            for (const part of parts) {
+              // If part has nested parts, recurse into them
+              if (part?.parts) {
+                const foundHtml = findHtmlPart(part?.parts);
+                if (foundHtml) return foundHtml; // Return immediately if HTML part found
+              }
 
-        const base64urlData = response?.payload?.parts
-          ? decodeResponse(response?.payload?.parts)
-          : response?.payload?.body?.data;
+              // If this part has mimeType 'text/html', return the data
+              if (part?.mimeType === "text/html") {
+                return part?.body?.data || null;
+              }
+            }
+
+            return null; // No 'text/html' part found
+          };
+          if (payload?.body?.size > 0) {
+            return payload?.body?.data;
+          }
+
+          return findHtmlPart(payload?.parts) || null; // Start the search and return result
+        };
+
+        const base64urlData = extractHtmlPart(response.payload);
         const body = base64urlData?.replace(/-/g, "+")?.replace(/_/g, "/");
 
         const details = {
@@ -65,6 +86,7 @@ const EmailCard = ({ checkedEmails, handleCheckbox, mail }) => {
               ? response?.emailMetadata?.bcc?.split(",")
               : "",
         };
+
         setEmailData(details);
       } catch (error) {
         throw new Error(error);
