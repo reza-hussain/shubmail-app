@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Button, Empty, Flex, Input, Layout, Pagination, Skeleton } from "antd";
+import {
+  Button,
+  Empty,
+  Flex,
+  Input,
+  Layout,
+  Pagination,
+  Skeleton,
+  Switch,
+} from "antd";
 
 // components
 import EmailCard from "../EmailCard";
@@ -29,6 +38,7 @@ const InboxList = ({
 
   const { fetchData } = useSidebarItems();
   const [isUnread, setIsUnread] = useState(false);
+  const [unreadToggle, setUnreadToggle] = useState(false);
 
   const handleMarkAsUnread = async () => {
     const firstSelectedEmail = inbox?.filter(
@@ -69,6 +79,15 @@ const InboxList = ({
     }
   };
 
+  const handleSwitch = (checked) => {
+    setUnreadToggle(checked);
+    console.log({ checked });
+
+    const type = checked ? "unread" : "all";
+
+    fetchData(null, type);
+  };
+
   useEffect(() => {
     const firstSelectedEmail = inbox?.filter(
       (item) => item?.id === checkedEmails?.[0]
@@ -89,6 +108,12 @@ const InboxList = ({
           placeholder="Search emails"
           onChange={(e) => setSearch(e?.target?.value)}
         />
+        <div className="w-full flex justify-end items-center gap-4">
+          <span className="text-gray-900 font-semibold">
+            Show {unreadToggle ? "Read" : "Unread"}
+          </span>
+          <Switch onChange={handleSwitch} />
+        </div>
         {checkedEmails?.length > 0 && (
           <div className="w-full flex justify-end items-center gap-4 bg-white z-[100]">
             <Button onClick={handleMarkAsUnread}>

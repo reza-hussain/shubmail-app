@@ -11,7 +11,7 @@ export const StateProvider = ({ children }) => {
   const [emailLoader, setEmailLoader] = useState(false);
   const [emailData, setEmailData] = useState("");
   const [pagination, setPagination] = useState(null);
-  const [filterType, setFilterType] = useState(null);
+  const [filterType, setFilterType] = useState("all");
   const [search, setSearch] = useState(null);
 
   return (

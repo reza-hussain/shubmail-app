@@ -41,7 +41,7 @@ const Mailbox = () => {
     const type = e.target.value;
 
     if (filterType === type) {
-      setFilterType(null);
+      setFilterType("all");
       fetchData(null, "all");
     } else {
       fetchData(null, type);
@@ -91,10 +91,10 @@ const Mailbox = () => {
           >
             <Radio.Button
               onClick={handleRadio}
-              value="unread"
+              value="all"
               className="w-full !border-none"
             >
-              Unread
+              Inbox
             </Radio.Button>
             <Radio.Button
               onClick={handleRadio}
