@@ -32,7 +32,7 @@ const InboxList = ({
     activeEmail,
     setCurrentPage,
     currentPage,
-
+    filterType,
     setSearch,
   } = useStateValue();
 
@@ -83,7 +83,7 @@ const InboxList = ({
     setUnreadToggle(checked);
     console.log({ checked });
 
-    const type = checked ? "unread" : "all";
+    const type = checked ? "unread" : "inbox";
 
     fetchData(null, type);
   };
@@ -101,6 +101,8 @@ const InboxList = ({
     // eslint-disable-next-line
   }, [checkedEmails, inbox]);
 
+  console.log({ filterType });
+
   return (
     <Layout className="max-w-[30%] bg-white h-full p-4">
       <Flex className="h-full overflow-scroll gap-4 relative" vertical>
@@ -108,12 +110,14 @@ const InboxList = ({
           placeholder="Search emails"
           onChange={(e) => setSearch(e?.target?.value)}
         />
-        <div className="w-full flex justify-end items-center gap-4">
-          <span className="text-gray-900 font-semibold">
-            Show {unreadToggle ? "Read" : "Unread"}
-          </span>
-          <Switch onChange={handleSwitch} />
-        </div>
+        {filterType?.toLowerCase() === "inbox" && (
+          <div className="w-full flex justify-end items-center gap-4">
+            <span className="text-gray-700 font-medium">
+              Show {unreadToggle ? "Read" : "Unread"}
+            </span>
+            <Switch onChange={handleSwitch} />
+          </div>
+        )}
         {checkedEmails?.length > 0 && (
           <div className="w-full flex justify-end items-center gap-4 bg-white z-[100]">
             <Button onClick={handleMarkAsUnread}>

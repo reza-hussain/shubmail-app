@@ -14,6 +14,8 @@ const AddEmail = ({ isModalOpen, handleCancel }) => {
     });
 
     window.location.href = response;
+
+    console.log({ response });
   };
 
   return (

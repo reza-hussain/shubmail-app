@@ -97,6 +97,8 @@ const Emails = () => {
 
   useEffect(() => {
     const code = params.get("code");
+    console.log({ code });
+
     const url = window.location.pathname;
 
     if (code) {

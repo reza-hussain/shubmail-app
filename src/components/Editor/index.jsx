@@ -1,14 +1,15 @@
 // Importing helper modules
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 
 // Importing core components
 import QuillEditor from "react-quill";
 
 // Importing styles
 import "react-quill/dist/quill.snow.css";
+import { useStateValue } from "../../context/StateProvider";
 
 const Editor = ({ value, setValue }) => {
-  // Editor state
+  const { emailData } = useStateValue();
 
   // Editor ref
   const quill = useRef();
@@ -81,6 +82,12 @@ const Editor = ({ value, setValue }) => {
     "color",
     "clean",
   ];
+
+  useEffect(() => {
+    setValue(
+      `<p><br><br></p>---------- Previous Message ----------<br>${emailData?.body}`
+    );
+  }, [emailData]);
 
   return (
     <div className="flex-grow w-full min-h-[55%] mb-4">

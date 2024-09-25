@@ -23,3 +23,15 @@
 
   gap: 1rem;
 }
+
+.ant-btn {
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.ant-layout-sider-children {
+  max-width: 100% !important;
+  width: 100% !important;
+}

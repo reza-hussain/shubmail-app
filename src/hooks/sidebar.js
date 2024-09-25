@@ -16,7 +16,7 @@ export const useSidebarItems = (children) => {
   } = useStateValue();
 
   const fetchData = async (data, type) => {
-    data?.key && setActiveEmail(data?.key);
+    data && setActiveEmail(data);
     setInboxLoader(true);
     try {
       const response =
@@ -25,8 +25,8 @@ export const useSidebarItems = (children) => {
           url: `/gmail/${
             data?.key ?? activeEmail
           }/read-all-emails?page=${currentPage}&pageSize=10&type=${
-            type ?? "all"
-          }${search ? `?search=${search}` : ""}`,
+            type ?? "inbox"
+          }${search ? `&search=${search}` : ""}`,
         }));
       setInbox(response?.messages);
       setPagination(response?.pagination);

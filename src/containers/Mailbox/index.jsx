@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Layout, Menu, Radio } from "antd";
+import { Button, Layout, Menu, Popover, Radio } from "antd";
 
 // styles
 import "antd/es/layout/style/index";
@@ -15,6 +15,7 @@ const Mailbox = () => {
   const [messageOpen, setMessageOpen] = useState(false);
   const [emails, setEmails] = useState([]);
   const [checkedEmails, setCheckedEmails] = useState([]);
+  const [activeItem, setActiveItem] = useState(null);
 
   const { sidebarItems, fetchData } = useSidebarItems(emails);
   const {
@@ -41,8 +42,8 @@ const Mailbox = () => {
     const type = e.target.value;
 
     if (filterType === type) {
-      setFilterType("all");
-      fetchData(null, "all");
+      setFilterType("inbox");
+      fetchData(null, "inbox");
     } else {
       fetchData(null, type);
       setFilterType(type);
@@ -66,24 +67,39 @@ const Mailbox = () => {
     // eslint-disable-next-line
   }, []);
 
+  const handleClick = async (data) => {
+    setActiveItem(data);
+
+    if (data !== activeEmail) await fetchData(data);
+
+    localStorage.setItem("activeEmail", JSON.stringify(data));
+  };
+
   return (
     <div className="w-full max-h-[calc(100vh-64px)] h-full overflow-hidden pl-16">
       <Layout className="w-full bg-white h-full">
         <Sider
           width={200}
-          className="!bg-white border-0 border-r-[1px] border-solid border-[rgba(5,5,5,0.06)] h-full relative"
+          className="w-full overflow-hidden  !bg-white border-0 border-r-[1px] border-solid border-[rgba(5,5,5,0.06)] h-full relative"
         >
-          <Menu
-            mode="inline"
-            defaultSelectedKeys={[activeEmail]}
-            style={{
-              height: "100%",
-              borderRight: 0,
-              background: "#fff",
-            }}
-            selectedKeys={[activeEmail]}
-            items={sidebarItems}
-          />
+          <div className="w-full flex flex-col justify-start items-center mt-5 gap-5 max-h-[65%] overflow-auto">
+            {sidebarItems?.[0]?.children?.map((item) => (
+              <Popover
+                className="max-w-full overflow-hidden"
+                onClick={() => handleClick(item?.key)}
+                content={item.title}
+                trigger="hover"
+              >
+                <Button
+                  className={`min-h-[24px] max-h-[24px] flex justify-start items-center w-full max-w-full overflow-hidden text-ellipsis !border-none ${
+                    activeItem === item?.key ? "!text-blue-400" : ""
+                  }`}
+                >
+                  {item.title}
+                </Button>
+              </Popover>
+            ))}
+          </div>
 
           <Radio.Group
             value={filterType}
@@ -91,7 +107,7 @@ const Mailbox = () => {
           >
             <Radio.Button
               onClick={handleRadio}
-              value="all"
+              value="inbox"
               className="w-full !border-none"
             >
               Inbox
