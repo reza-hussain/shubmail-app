@@ -18,12 +18,13 @@ export const useSidebarItems = (children) => {
   const fetchData = async (data, type) => {
     data && setActiveEmail(data);
     setInboxLoader(true);
+
     try {
       const response =
-        (data?.key || activeEmail) &&
+        (data || activeEmail) &&
         (await getRequest({
           url: `/gmail/${
-            data?.key ?? activeEmail
+            data ?? activeEmail
           }/read-all-emails?page=${currentPage}&pageSize=10&type=${
             type ?? "inbox"
           }${search ? `&search=${search}` : ""}`,
@@ -46,7 +47,7 @@ export const useSidebarItems = (children) => {
   useEffect(() => {
     const debounce = setTimeout(() => {
       const active = JSON.parse(localStorage.getItem("activeEmail"));
-      fetchData({ key: active ?? activeEmail });
+      fetchData(active ?? activeEmail);
       setActiveEmail(active);
     }, 1000);
 

@@ -11,7 +11,9 @@ const EmailInput = ({ items, setItems, value, setValue, title }) => {
   const inputRef = useRef();
 
   const handleTagRemove = (tagId, type) => {
-    const updatedEmails = items?.filter((email) => email.id !== tagId);
+    const updatedEmails = items?.filter((email) => email !== tagId);
+
+    console.log({ tagId, updatedEmails });
 
     setItems(updatedEmails);
   };
@@ -52,6 +54,7 @@ const EmailInput = ({ items, setItems, value, setValue, title }) => {
         e.preventDefault();
         e.stopPropagation();
         setIsFocused(true);
+        setError(false);
         inputRef?.current?.focus();
       }}
       ref={parentRef}
@@ -79,7 +82,7 @@ const EmailInput = ({ items, setItems, value, setValue, title }) => {
             />
           </div>
         ) : (
-          <div className="w-full flex justify-start items-center gap-2">
+          <div className="w-full flex justify-start items-center gap-2 cursor-pointer">
             {items?.slice(0, 3)?.map((email, idx) => (
               <p>{`${email?.split("<")[0]}${
                 idx !== items?.length - 1 ? "," : ""

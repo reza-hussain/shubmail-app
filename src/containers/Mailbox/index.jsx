@@ -22,6 +22,7 @@ const Mailbox = () => {
     activeEmail,
     setActiveEmail,
     setEmailLoader,
+    inboxLoader,
 
     setFilterType,
     filterType,
@@ -63,14 +64,23 @@ const Mailbox = () => {
       } finally {
         setEmailLoader(false);
       }
+
+      const activeEmailFromLocal = JSON.parse(
+        localStorage?.getItem("activeEmail")
+      );
+      setActiveItem(activeEmailFromLocal);
     })();
     // eslint-disable-next-line
   }, []);
+  // console.log({ emails, sidebarItems });
 
   const handleClick = async (data) => {
     setActiveItem(data);
+    if (data !== activeEmail) {
+      console.log("called");
 
-    if (data !== activeEmail) await fetchData(data);
+      await fetchData(data);
+    }
 
     localStorage.setItem("activeEmail", JSON.stringify(data));
   };
@@ -85,12 +95,14 @@ const Mailbox = () => {
           <div className="w-full flex flex-col justify-start items-center mt-5 gap-5 max-h-[65%] overflow-auto">
             {sidebarItems?.[0]?.children?.map((item) => (
               <Popover
+                key={item.title}
                 className="max-w-full overflow-hidden"
                 onClick={() => handleClick(item?.key)}
                 content={item.title}
                 trigger="hover"
               >
                 <Button
+                  disabled={inboxLoader}
                   className={`min-h-[24px] max-h-[24px] flex justify-start items-center w-full max-w-full overflow-hidden text-ellipsis !border-none ${
                     activeItem === item?.key ? "!text-blue-400" : ""
                   }`}

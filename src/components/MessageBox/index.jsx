@@ -30,9 +30,16 @@ const MessageBox = ({
 
   const [subject, setSubject] = useState("");
 
+  function fixTextEncoding(text) {
+    const decoder = new TextDecoder("utf-8");
+    return decoder.decode(
+      new Uint8Array(text.split("").map((char) => char.charCodeAt(0)))
+    );
+  }
+
   return (
     <div
-      className={`w-full max-h-full h-full overflow-auto z-[200] relative flex flex-col justify-start items-start rounded-xl border-solid border-[rgba(5,5,5,0.06)] p-4`}
+      className={`w-full max-h-full h-full overflow-auto z-[200] relative flex flex-col justify-start items-start rounded-xl border-solid border-[rgba(5,5,5,0.06)] p-4 `}
     >
       <div className="absolute right-5 top-5 cursor-pointer z-50 flex justify-center items-center gap-2">
         <span
@@ -95,7 +102,9 @@ const MessageBox = ({
         />
 
         {body ? (
-          <div className="w-full max-h-full ">{parse(body)}</div>
+          <div className="w-full max-h-full ">
+            {parse(fixTextEncoding(body))}
+          </div>
         ) : (
           <Editor value={editorState} setValue={setEditorState} />
         )}

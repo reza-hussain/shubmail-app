@@ -233,7 +233,9 @@ const MailDetails = ({ menu, messageOpen, setMessageOpen }) => {
                     emailData?.to?.map(
                       (item) =>
                         item?.length > 0 && (
-                          <p className="py-1 px-2 bg-gray-100">{item}</p>
+                          <p key={item} className="py-1 px-2 bg-gray-100">
+                            {item}
+                          </p>
                         )
                     )
                   )}
@@ -248,7 +250,9 @@ const MailDetails = ({ menu, messageOpen, setMessageOpen }) => {
                         {emailData?.cc?.map(
                           (item) =>
                             item?.length > 0 && (
-                              <p className="py-1 px-2 bg-gray-100">{item}</p>
+                              <p key={item} className="py-1 px-2 bg-gray-100">
+                                {item}
+                              </p>
                             )
                         )}
                       </>
@@ -265,7 +269,9 @@ const MailDetails = ({ menu, messageOpen, setMessageOpen }) => {
                         {emailData?.bcc?.map(
                           (item) =>
                             item?.length > 0 && (
-                              <p className="py-1 px-2 bg-gray-100">{item}</p>
+                              <p key={item} className="py-1 px-2 bg-gray-100">
+                                {item}
+                              </p>
                             )
                         )}
                       </>

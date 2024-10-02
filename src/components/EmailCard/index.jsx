@@ -5,14 +5,25 @@ import moment from "moment";
 import { getRequest } from "../../services/inbox";
 import { useStateValue } from "../../context/StateProvider";
 
-const EmailCard = ({ checkedEmails, handleCheckbox, mail }) => {
+const EmailCard = ({
+  checkedEmails,
+  handleCheckbox,
+  mail,
+  index,
+  activeInboxItem,
+  setActiveInboxItem,
+  onClick,
+}) => {
   const [isUnread, setIsUnread] = useState(false);
-  const { activeEmail, setEmailData, setMailLoader, emailData } =
+  const { activeEmail, setEmailData, setMailLoader, mailLoader, emailData } =
     useStateValue();
 
   const handleClick = async () => {
+    setActiveInboxItem(mail.id);
     if (mail?.id !== emailData?.id) {
       setMailLoader(true);
+      onClick?.();
+
       try {
         const response = await getRequest({
           url: `/gmail/${activeEmail}/read-single-emails/${mail.id}`,
@@ -71,7 +82,6 @@ const EmailCard = ({ checkedEmails, handleCheckbox, mail }) => {
               ? response?.emailMetadata?.bcc?.split(",")
               : "",
         };
-
         setEmailData(details);
       } catch (error) {
         throw new Error(error);
@@ -87,14 +97,19 @@ const EmailCard = ({ checkedEmails, handleCheckbox, mail }) => {
     );
     setIsUnread(isUnread);
 
+    // console.log({ mail });
     // eslint-disable-next-line
-  }, [mail]);
+  }, [mail.id]);
 
   return (
     <Card
       className={`mailCard cursor-pointer ${
-        activeEmail === mail.id ? "mailCardActive" : ""
-      } ${!isUnread ? "!text-gray-500" : "text-black"}`}
+        activeInboxItem === mail.id
+          ? "border !border-[#108ee9] !text-[#108ee9]"
+          : "border !border-[#f0f0f0]"
+      } ${!isUnread ? "!text-gray-500" : "text-black"} ${
+        mailLoader ? "pointer-events-none opacity-30" : "pointer-events-auto"
+      }`}
       key={mail.id}
       onClick={handleClick}
     >

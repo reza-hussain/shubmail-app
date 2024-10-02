@@ -40,6 +40,8 @@ const InboxList = ({
   const [isUnread, setIsUnread] = useState(false);
   const [unreadToggle, setUnreadToggle] = useState(false);
 
+  const [activeInboxItem, setActiveInboxItem] = useState();
+
   const handleMarkAsUnread = async () => {
     const firstSelectedEmail = inbox?.filter(
       (item) => item?.id === checkedEmails?.[0]
@@ -81,7 +83,6 @@ const InboxList = ({
 
   const handleSwitch = (checked) => {
     setUnreadToggle(checked);
-    console.log({ checked });
 
     const type = checked ? "unread" : "inbox";
 
@@ -100,8 +101,6 @@ const InboxList = ({
 
     // eslint-disable-next-line
   }, [checkedEmails, inbox]);
-
-  console.log({ filterType });
 
   return (
     <Layout className="max-w-[30%] bg-white h-full p-4">
@@ -133,16 +132,21 @@ const InboxList = ({
               <Skeleton key={index} loading={inboxLoader} active />
             ))
         ) : inbox?.length ? (
-          inbox.map((mail, idx) => (
-            <EmailCard
-              index={idx}
-              activeEmail={activeEmail}
-              mail={mail}
-              key={mail.id}
-              checkedEmails={checkedEmails}
-              handleCheckbox={handleCheckbox}
-            />
-          ))
+          inbox.map((mail, idx) => {
+            return (
+              <EmailCard
+                index={idx}
+                activeEmail={activeEmail}
+                isActive={activeInboxItem === mail?.id}
+                activeInboxItem={activeInboxItem}
+                setActiveInboxItem={setActiveInboxItem}
+                mail={mail}
+                key={mail.id}
+                checkedEmails={checkedEmails}
+                handleCheckbox={handleCheckbox}
+              />
+            );
+          })
         ) : (
           <Empty />
         )}
