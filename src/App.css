@@ -24,6 +24,18 @@ body {
   align-items: center;
 }
 
+div[dir="ltr"] {
+  padding: 20px 0px !important;
+  /* background: red; */
+}
+
+.gmail_quote {
+  div {
+    padding: unset !important;
+    background: unset;
+  }
+}
+
 /* TAILWIND */
 
 .scrollbar-hidden::-webkit-scrollbar {

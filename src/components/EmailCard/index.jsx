@@ -18,6 +18,33 @@ const EmailCard = ({
   const { activeEmail, setEmailData, setMailLoader, mailLoader, emailData } =
     useStateValue();
 
+  const extractHtmlPart = (payload) => {
+    // Recursive helper function
+    const findHtmlPart = (parts) => {
+      if (!parts || !Array.isArray(parts)) return null; // Guard clause to ensure parts is an array
+
+      for (const part of parts) {
+        // If part has nested parts, recurse into them
+        if (part?.parts) {
+          const foundHtml = findHtmlPart(part?.parts);
+          if (foundHtml) return foundHtml; // Return immediately if HTML part found
+        }
+
+        // If this part has mimeType 'text/html', return the data
+        if (part?.mimeType === "text/html") {
+          return part?.body?.data || null;
+        }
+      }
+
+      return null; // No 'text/html' part found
+    };
+    if (payload?.body?.size > 0) {
+      return payload?.body?.data;
+    }
+
+    return findHtmlPart(payload?.parts) || null; // Start the search and return result
+  };
+
   const handleClick = async () => {
     setActiveInboxItem(mail.id);
     if (mail?.id !== emailData?.id) {
@@ -35,35 +62,27 @@ const EmailCard = ({
         );
         setIsUnread(isUnread);
 
-        const extractHtmlPart = (payload) => {
-          // Recursive helper function
-          const findHtmlPart = (parts) => {
-            if (!parts || !Array.isArray(parts)) return null; // Guard clause to ensure parts is an array
-
-            for (const part of parts) {
-              // If part has nested parts, recurse into them
-              if (part?.parts) {
-                const foundHtml = findHtmlPart(part?.parts);
-                if (foundHtml) return foundHtml; // Return immediately if HTML part found
-              }
-
-              // If this part has mimeType 'text/html', return the data
-              if (part?.mimeType === "text/html") {
-                return part?.body?.data || null;
-              }
-            }
-
-            return null; // No 'text/html' part found
-          };
-          if (payload?.body?.size > 0) {
-            return payload?.body?.data;
-          }
-
-          return findHtmlPart(payload?.parts) || null; // Start the search and return result
-        };
-
         const base64urlData = extractHtmlPart(response.payload);
         const body = base64urlData?.replace(/-/g, "+")?.replace(/_/g, "/");
+
+        const threadData = response?.threadData?.messages?.map((thread) => {
+          const html = extractHtmlPart(thread?.payload);
+
+          const body = atob(html?.replace(/-/g, "+")?.replace(/_/g, "/"));
+
+          return {
+            from: thread?.payload?.headers?.filter(
+              (item) => item.name === "From"
+            )?.[0]?.value,
+            to: thread?.payload?.headers?.filter(
+              (item) => item.name === "To"
+            )?.[0]?.value,
+            date: thread?.payload?.headers?.filter(
+              (item) => item.name === "Date"
+            )?.[0]?.value,
+            body,
+          };
+        });
 
         const details = {
           from: response?.emailMetadata?.from,
@@ -71,6 +90,7 @@ const EmailCard = ({
           subject: response?.emailMetadata?.subject,
           date: response?.emailMetadata?.date,
           body: atob(body),
+          threadData,
           id: response.id,
           isUnread,
           cc:
@@ -82,6 +102,7 @@ const EmailCard = ({
               ? response?.emailMetadata?.bcc?.split(",")
               : "",
         };
+
         setEmailData(details);
       } catch (error) {
         throw new Error(error);
@@ -97,7 +118,6 @@ const EmailCard = ({
     );
     setIsUnread(isUnread);
 
-    // console.log({ mail });
     // eslint-disable-next-line
   }, [mail.id]);
 

@@ -1,3 +1,9 @@
+.ant-layout-content {
+  p {
+    margin: 0 !important;
+  }
+}
+
 .ant-menu-sub.ant-menu-inline {
   background-color: white !important;
 }

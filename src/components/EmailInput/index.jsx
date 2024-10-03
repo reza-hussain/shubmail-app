@@ -13,8 +13,6 @@ const EmailInput = ({ items, setItems, value, setValue, title }) => {
   const handleTagRemove = (tagId, type) => {
     const updatedEmails = items?.filter((email) => email !== tagId);
 
-    console.log({ tagId, updatedEmails });
-
     setItems(updatedEmails);
   };
 
@@ -31,21 +29,6 @@ const EmailInput = ({ items, setItems, value, setValue, title }) => {
         setError(true);
       }
     }
-
-    // if (e.key === "Backspace" && !value?.length) {
-    //   console.log({ items });
-
-    //   if (items.length === 1) {
-    //     setItems([]);
-    //   }
-    //   if (items?.length > 1) {
-    //     const newItems = items?.splice();
-
-    //     console.log({ newItems });
-
-    //     setItems(newItems);
-    //   }
-    // }
   };
 
   return (

@@ -19,6 +19,7 @@ import MessageBox from "../MessageBox";
 
 // context
 import { useStateValue } from "../../context/StateProvider";
+import ThreadItem from "../ThreadItem";
 
 const MailDetails = ({ menu, messageOpen, setMessageOpen }) => {
   const { emailData, setEmailData, mailLoader, activeEmail, inbox, setInbox } =
@@ -207,8 +208,6 @@ const MailDetails = ({ menu, messageOpen, setMessageOpen }) => {
       }),
     });
 
-    console.log({ draft });
-
     return draft;
   };
 
@@ -297,11 +296,20 @@ const MailDetails = ({ menu, messageOpen, setMessageOpen }) => {
                 messageOpen ? "opacity-50" : "opacity-100"
               }`}
             >
-              {mailLoader ? <Skeleton active /> : parse(emailData?.body ?? "")}
+              {mailLoader ? (
+                <Skeleton active />
+              ) : emailData?.threadData?.length > 1 ? (
+                emailData?.threadData?.map((thread, index) => (
+                  <ThreadItem
+                    data={thread}
+                    isLastItem={index === emailData?.threadData?.length - 1}
+                  />
+                ))
+              ) : (
+                parse(emailData?.body ?? "")
+              )}
             </div>
-
             {/* REPLY BOX */}
-
             {messageOpen && !mailLoader && (
               <div className="w-full h-[450px] bg-white z-[100]">
                 <MessageBox
@@ -320,7 +328,6 @@ const MailDetails = ({ menu, messageOpen, setMessageOpen }) => {
                 />
               </div>
             )}
-
             {!mailLoader && (
               <div className="w-full flex justify-start items-center gap-4">
                 {!messageOpen ? (

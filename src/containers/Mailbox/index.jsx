@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Layout, Menu, Popover, Radio } from "antd";
+import { Button, Layout, Popover, Radio } from "antd";
 
 // styles
 import "antd/es/layout/style/index";
@@ -72,13 +72,10 @@ const Mailbox = () => {
     })();
     // eslint-disable-next-line
   }, []);
-  // console.log({ emails, sidebarItems });
 
   const handleClick = async (data) => {
     setActiveItem(data);
     if (data !== activeEmail) {
-      console.log("called");
-
       await fetchData(data);
     }
 

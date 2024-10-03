@@ -84,9 +84,25 @@ const Editor = ({ value, setValue }) => {
   ];
 
   useEffect(() => {
-    setValue(
-      `<p><br><br></p>---------- Previous Message ----------<br>${emailData?.body}`
-    );
+    if (emailData?.threadData?.length > 1) {
+      const lastIndex = emailData?.threadData?.length - 1;
+      const lastItem = emailData?.threadData?.[lastIndex];
+
+      setValue(`
+      <br>
+      <br>
+      <br>
+      On ${lastItem?.date}, ${lastItem?.from} wrote:
+      
+      ${lastItem?.body}
+      `);
+    } else {
+      setValue(
+        `<p><br><br></p>---------- Previous Message ----------<br><br><br>${emailData?.body}`
+      );
+    }
+
+    // eslint-disable-next-line
   }, [emailData]);
 
   return (
