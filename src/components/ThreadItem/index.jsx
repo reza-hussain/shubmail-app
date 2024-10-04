@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import parse from "html-react-parser";
+import DOMPurify from "dompurify";
 
 const ThreadItem = ({ data, isLastItem }) => {
   const ref = useRef(null);
@@ -11,6 +12,8 @@ const ThreadItem = ({ data, isLastItem }) => {
       ref.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [isLastItem, isExpanded]);
+
+  const cleanHTML = DOMPurify.sanitize(data?.body);
 
   return (
     <div
@@ -28,7 +31,7 @@ const ThreadItem = ({ data, isLastItem }) => {
         <h4 className="text-gray-600 font-medium">To: {data?.to}</h4>
       </div>
 
-      {isExpanded ? parse(data?.body ?? "") : <></>}
+      {isExpanded ? parse(cleanHTML ?? "") : <></>}
     </div>
   );
 };

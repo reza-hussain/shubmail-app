@@ -20,6 +20,7 @@ import MessageBox from "../MessageBox";
 // context
 import { useStateValue } from "../../context/StateProvider";
 import ThreadItem from "../ThreadItem";
+import DOMPurify from "dompurify";
 
 const MailDetails = ({ menu, messageOpen, setMessageOpen }) => {
   const { emailData, setEmailData, mailLoader, activeEmail, inbox, setInbox } =
@@ -211,6 +212,8 @@ const MailDetails = ({ menu, messageOpen, setMessageOpen }) => {
     return draft;
   };
 
+  const cleanHTML = DOMPurify.sanitize(emailData?.body);
+
   return (
     <Layout className="max-w-[60%] p-4 bg-white h-full">
       {emailData ? (
@@ -306,7 +309,7 @@ const MailDetails = ({ menu, messageOpen, setMessageOpen }) => {
                   />
                 ))
               ) : (
-                parse(emailData?.body ?? "")
+                parse(cleanHTML ?? "")
               )}
             </div>
             {/* REPLY BOX */}

@@ -7,6 +7,7 @@ import Editor from "../Editor";
 import EmailInput from "../EmailInput";
 
 import "react-quill/dist/quill.snow.css";
+import DOMPurify from "dompurify";
 
 const MessageBox = ({
   setMessageOpen,
@@ -29,6 +30,8 @@ const MessageBox = ({
   const [ccExpanded, setCcExpanded] = useState(false);
 
   const [subject, setSubject] = useState("");
+
+  const cleanHTML = DOMPurify.sanitize(body);
 
   function fixTextEncoding(text) {
     const decoder = new TextDecoder("utf-8");
@@ -103,7 +106,7 @@ const MessageBox = ({
 
         {body ? (
           <div className="w-full max-h-full ">
-            {parse(fixTextEncoding(body))}
+            {parse(fixTextEncoding(cleanHTML))}
           </div>
         ) : (
           <Editor value={editorState} setValue={setEditorState} />

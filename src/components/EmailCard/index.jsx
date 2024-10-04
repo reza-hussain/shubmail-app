@@ -4,6 +4,7 @@ import parse from "html-react-parser";
 import moment from "moment";
 import { getRequest } from "../../services/inbox";
 import { useStateValue } from "../../context/StateProvider";
+import DOMPurify from "dompurify";
 
 const EmailCard = ({
   checkedEmails,
@@ -17,6 +18,8 @@ const EmailCard = ({
   const [isUnread, setIsUnread] = useState(false);
   const { activeEmail, setEmailData, setMailLoader, mailLoader, emailData } =
     useStateValue();
+
+  const cleanHTML = DOMPurify.sanitize(mail?.snippet);
 
   const extractHtmlPart = (payload) => {
     // Recursive helper function
@@ -150,7 +153,7 @@ const EmailCard = ({
           ? mail.headers.from.split("<")?.[0]
           : mail.headers.from.split("<")?.[1]}
       </h4>
-      <p>{parse(mail.snippet)}</p>
+      <p>{parse(cleanHTML)}</p>
       <span>{moment(mail.headers.date).format("DD-MMM-YYYY")}</span>
     </Card>
   );
