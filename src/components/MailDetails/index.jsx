@@ -79,7 +79,7 @@ const MailDetails = ({ menu, messageOpen, setMessageOpen }) => {
     setIsLoading(true);
     try {
       await postRequest({
-        url: `/gmail/${activeEmail}/reply`,
+        url: `/gmail/${activeEmail}/reply-emails`,
         data,
       });
 

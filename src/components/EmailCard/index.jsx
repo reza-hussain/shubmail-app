@@ -23,6 +23,8 @@ const EmailCard = ({
     const findHtmlPart = (parts) => {
       if (!parts || !Array.isArray(parts)) return null; // Guard clause to ensure parts is an array
 
+      const htmlExists = parts?.some((part) => part?.mimeType === "text/html");
+
       for (const part of parts) {
         // If part has nested parts, recurse into them
         if (part?.parts) {
@@ -33,6 +35,10 @@ const EmailCard = ({
         // If this part has mimeType 'text/html', return the data
         if (part?.mimeType === "text/html") {
           return part?.body?.data || null;
+        }
+
+        if (!htmlExists && part?.body?.size > 0) {
+          return part?.body?.data;
         }
       }
 
