@@ -100,7 +100,7 @@ const EmailCard = ({
           date: response?.emailMetadata?.date,
           body: atob(body),
           threadData,
-          id: response.id,
+          id: response?.threadId,
           isUnread,
           cc:
             response?.emailMetadata?.cc?.length > 0

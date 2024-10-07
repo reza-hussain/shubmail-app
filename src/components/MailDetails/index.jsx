@@ -61,9 +61,9 @@ const MailDetails = ({ menu, messageOpen, setMessageOpen }) => {
 
   const handleReply = async () => {
     let data = {
-      messageId: emailData?.id,
-      to: emailsToSend,
-      from: emailData?.to,
+      threadId: emailData?.id,
+      to: emailsToSend?.map((email) => email.split("<")?.[1]?.split(">")?.[0]),
+      from: emailData?.to?.[0].split("<")?.[1]?.split(">")?.[0],
       subject: emailData?.subject,
       message: editorState,
     };
@@ -182,6 +182,7 @@ const MailDetails = ({ menu, messageOpen, setMessageOpen }) => {
     if (messageOpen === 2) {
       emailData?.bcc?.length > 0 && setBccEmails([emailData?.bcc]);
       emailData?.cc?.length > 0 && setCcEmails([emailData?.cc]);
+
       setEmailsToSend([emailData?.from]);
     }
     if (messageOpen === 1) {
@@ -291,6 +292,9 @@ const MailDetails = ({ menu, messageOpen, setMessageOpen }) => {
                 <Space>...</Space>
               </Dropdown>
             </div>
+
+            {/*  */}
+
             {/* EMAIL BODY */}
             <div
               className={`w-full ${
