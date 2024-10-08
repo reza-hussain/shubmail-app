@@ -221,7 +221,7 @@ const MailDetails = ({ menu, messageOpen, setMessageOpen }) => {
         <Content className="w-full flex justify-center items-start h-full overflow-hidden">
           <div className="w-full flex flex-col justify-start items-start h-full gap-5 relative">
             {/* MAIL HEADER */}
-            <div className="w-full py-4 flex justify-between items-center border-0 border-solid border-b-2 border-[rgba(5,5,5,0.06)]">
+            <div className="w-full py-4 flex justify-between items-center">
               <div className="w-full flex flex-col justify-start items-start gap-4 ">
                 {mailLoader ? (
                   <Skeleton.Input size="small" className="!w-full" active />
@@ -293,7 +293,11 @@ const MailDetails = ({ menu, messageOpen, setMessageOpen }) => {
               </Dropdown>
             </div>
 
-            {/*  */}
+            {/* MAIL SUBJECT */}
+
+            <div className="w-full flex justify-start items-start font-medium  border-0 border-solid border-b-2 border-[rgba(5,5,5,0.06)]">
+              {emailData?.subject}
+            </div>
 
             {/* EMAIL BODY */}
             <div
