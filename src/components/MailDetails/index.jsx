@@ -62,8 +62,12 @@ const MailDetails = ({ menu, messageOpen, setMessageOpen }) => {
   const handleReply = async () => {
     let data = {
       threadId: emailData?.id,
-      to: emailsToSend?.map((email) => email.split("<")?.[1]?.split(">")?.[0]),
-      from: emailData?.to?.[0].split("<")?.[1]?.split(">")?.[0],
+      to: emailsToSend?.map((email) => {
+        return email.includes("<") ? email.split("<")[1]?.split(">")[0] : email;
+      }), // Safely map the emails
+      from: emailData?.to?.[0]?.includes("<")
+        ? emailData?.to?.[0]?.split("<")[1]?.split(">")[0]
+        : emailData?.to?.[0], // Handling 'from'
       subject: emailData?.subject,
       message: editorState,
     };
