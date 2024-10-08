@@ -5,12 +5,8 @@ axios.defaults.baseURL = "https://mail.taskauditor.com/api";
 // axios.defaults.baseURL = "http://localhost:4000/api";
 
 const fetchData = async (options) => {
-  try {
-    const response = await axios.request(options);
-    return response?.data?.data;
-  } catch (error) {
-    return error;
-  }
+  const response = await axios.request(options);
+  return response?.data?.data;
 };
 
 export const getRequest = async (options) => {

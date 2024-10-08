@@ -85,16 +85,15 @@ const MailDetails = ({ menu, messageOpen, setMessageOpen }) => {
       });
 
       handleToast("success", "Email forwarded successfully");
-
-      setMessageOpen(false);
-    } catch (error) {
-      handleToast("Failed to forward email", false);
-      throw new Error(error);
-    } finally {
-      setIsLoading(false);
       setEmailsToSend([]);
       setBccEmails([]);
       setCcEmails([]);
+      setMessageOpen(false);
+    } catch (error) {
+      handleToast("error", "Failed to forward email");
+      // throw new Error(error);
+    } finally {
+      setIsLoading(false);
       setEditorState("");
     }
   };
@@ -120,7 +119,7 @@ const MailDetails = ({ menu, messageOpen, setMessageOpen }) => {
 
       setMessageOpen(false);
     } catch (error) {
-      handleToast("Failed to forward email", false);
+      handleToast("error", "Failed to forward email");
       throw new Error(error);
     } finally {
       setIsLoading(false);

@@ -67,7 +67,7 @@ const EmailInput = ({ items, setItems, value, setValue, title }) => {
         ) : (
           <div className="w-full flex justify-start items-center gap-2 cursor-pointer">
             {items?.slice(0, 3)?.map((email, idx) => (
-              <p>{`${email?.split("<")[0]}${
+              <p key={email}>{`${email?.split("<")[0]}${
                 idx !== items?.length - 1 ? "," : ""
               }`}</p>
             ))}
