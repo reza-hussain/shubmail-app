@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import parse from "html-react-parser";
 import { Input } from "antd";
 
 import Close from "@ant-design/icons/CloseOutlined";
@@ -7,10 +6,10 @@ import Editor from "../Editor";
 import EmailInput from "../EmailInput";
 
 import "react-quill/dist/quill.snow.css";
-import DOMPurify from "dompurify";
 
 const MessageBox = ({
   setMessageOpen,
+  messageOpen,
   emailsToSend,
   setEmailsToSend,
   body,
@@ -30,15 +29,6 @@ const MessageBox = ({
   const [ccExpanded, setCcExpanded] = useState(false);
 
   const [subject, setSubject] = useState("");
-
-  const cleanHTML = DOMPurify.sanitize(body);
-
-  function fixTextEncoding(text) {
-    const decoder = new TextDecoder("utf-8");
-    return decoder.decode(
-      new Uint8Array(text.split("").map((char) => char.charCodeAt(0)))
-    );
-  }
 
   return (
     <div
@@ -74,6 +64,7 @@ const MessageBox = ({
           value={inputVal}
           setValue={setInputVal}
           title="To"
+          disabled={messageOpen === 1}
         />
 
         {(ccEmails?.length > 0 || ccExpanded) && (
@@ -104,13 +95,11 @@ const MessageBox = ({
           onChange={(e) => setSubject(e.target.value)}
         />
 
-        {body ? (
-          <div className="w-full max-h-full ">
-            {parse(fixTextEncoding(cleanHTML))}
-          </div>
-        ) : (
-          <Editor value={editorState} setValue={setEditorState} />
-        )}
+        <Editor
+          value={editorState}
+          setValue={setEditorState}
+          isForward={messageOpen === 3}
+        />
       </div>
     </div>
   );

@@ -8,7 +8,13 @@ import QuillEditor from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { useStateValue } from "../../context/StateProvider";
 
-const Editor = ({ value, setValue }) => {
+import {
+  formatForwardEmail,
+  formatReplyEmail,
+  GmailClipboardModule,
+} from "../../services/utils";
+
+const Editor = ({ value, setValue, isForward }) => {
   const { emailData } = useStateValue();
 
   // Editor ref
@@ -56,12 +62,16 @@ const Editor = ({ value, setValue }) => {
           ["link", "image"],
           ["clean"],
         ],
+
         handlers: {
           image: imageHandler,
         },
       },
       clipboard: {
-        matchVisual: true,
+        matchVisual: false,
+        matchers: GmailClipboardModule.matchers,
+        allowCustomCopy: true,
+        preserveWhitespace: true,
       },
     }),
     [imageHandler]
@@ -73,40 +83,34 @@ const Editor = ({ value, setValue }) => {
     "italic",
     "underline",
     "strike",
-    "blockquote",
     "list",
     "bullet",
-    "indent",
     "link",
-    "image",
-    "color",
     "clean",
+    "blockquote",
+    "gmail-thread",
+    "gmail-quote",
+    "gmail_quote",
   ];
-
   useEffect(() => {
     if (emailData?.threadData?.length > 1) {
       const lastIndex = emailData?.threadData?.length - 1;
       const lastItem = emailData?.threadData?.[lastIndex];
 
-      setValue(`
-      <br>
-      <br>
-      <br>
-      On ${lastItem?.date}, ${lastItem?.from} wrote:
-      
-      ${lastItem?.body}
-      `);
-    } else {
-      setValue(
-        `<p><br><br></p>---------- Previous Message ----------<br><br><br>${emailData?.body}`
-      );
+      if (isForward) {
+        const body = formatForwardEmail({ ...emailData, date: lastItem.date });
+        setValue(body);
+      } else {
+        const body = formatReplyEmail({ ...emailData, date: lastItem.date });
+        setValue(body);
+      }
     }
 
     // eslint-disable-next-line
   }, [emailData]);
 
   return (
-    <div className="flex-grow w-full min-h-[55%] mb-4">
+    <div className="flex-grow w-full min-h-[55%] mb-4 quill-component">
       <QuillEditor
         ref={(el) => (quill.current = el)}
         theme="snow"

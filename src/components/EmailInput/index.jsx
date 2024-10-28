@@ -2,7 +2,7 @@ import React, { useRef, useState } from "react";
 import { Input, Tag } from "antd";
 import { useDetectClickOutside } from "react-detect-click-outside";
 
-const EmailInput = ({ items, setItems, value, setValue, title }) => {
+const EmailInput = ({ items, setItems, value, setValue, title, disabled }) => {
   const [error, setError] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const parentRef = useDetectClickOutside({
@@ -41,7 +41,9 @@ const EmailInput = ({ items, setItems, value, setValue, title }) => {
         inputRef?.current?.focus();
       }}
       ref={parentRef}
-      className="w-full flex justify-start items-stretch gap-4 border-solid border-0 border-b-[1px] border-gray-200 pb-2"
+      className={`w-full flex justify-start items-stretch gap-4 border-solid border-0 border-b-[1px] border-gray-200 pb-2 ${
+        disabled ? "pointer-events-none opacity-75" : ""
+      }`}
     >
       <span className="w-full basis-[5%]">{title}</span>
       <div className="max-w-[80%] w-full scrollbar-hidden overflow-hidden flex justify-start items-start">

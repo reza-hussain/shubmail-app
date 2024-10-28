@@ -1,10 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Card, Checkbox } from "antd";
 import parse from "html-react-parser";
 import moment from "moment";
 import { getRequest } from "../../services/inbox";
 import { useStateValue } from "../../context/StateProvider";
 import DOMPurify from "dompurify";
+import {
+  decodeAndCleanContent,
+  fetchAttachment,
+  processEmailContent,
+} from "../../services/utils";
 
 const EmailCard = ({
   checkedEmails,
@@ -21,38 +26,141 @@ const EmailCard = ({
 
   const cleanHTML = DOMPurify.sanitize(mail?.snippet);
 
-  const extractHtmlPart = (payload) => {
-    // Recursive helper function
-    const findHtmlPart = (parts) => {
-      if (!parts || !Array.isArray(parts)) return null; // Guard clause to ensure parts is an array
+  const extractEmailContent = useCallback(
+    async (payload) => {
+      let htmlContent = null;
+      const attachments = [];
 
-      const htmlExists = parts?.some((part) => part?.mimeType === "text/html");
+      const findHtmlPart = async (parts) => {
+        if (!parts || !Array.isArray(parts)) return null;
 
-      for (const part of parts) {
-        // If part has nested parts, recurse into them
-        if (part?.parts) {
-          const foundHtml = findHtmlPart(part?.parts);
-          if (foundHtml) return foundHtml; // Return immediately if HTML part found
+        const htmlExists = parts.some((part) => part?.mimeType === "text/html");
+
+        for (const part of parts) {
+          if (part?.parts) {
+            const foundHtml = await findHtmlPart(part.parts);
+            if (foundHtml) return foundHtml;
+          }
+
+          if (part?.mimeType === "text/html") {
+            htmlContent = part.body?.data;
+            return htmlContent;
+          }
+
+          if (!htmlExists && part?.body?.size > 0) {
+            htmlContent = part.body?.data;
+            return htmlContent;
+          }
         }
 
-        // If this part has mimeType 'text/html', return the data
-        if (part?.mimeType === "text/html") {
-          return part?.body?.data || null;
+        return null;
+      };
+
+      const processAttachments = async (parts) => {
+        if (!parts || !Array.isArray(parts)) return;
+
+        // Handle nested multipart/related content
+        const relatedParts = parts.filter(
+          (part) => part.mimeType === "multipart/related"
+        );
+        if (relatedParts.length > 0) {
+          for (const relatedPart of relatedParts) {
+            if (relatedPart.parts) {
+              await processAttachments(relatedPart.parts);
+            }
+          }
+          return;
         }
 
-        if (!htmlExists && part?.body?.size > 0) {
-          return part?.body?.data;
+        // Process image attachments
+        const imageParts = parts.filter(
+          (part) =>
+            part.mimeType?.startsWith("image/") && part.body?.attachmentId
+        );
+
+        for (const imagePart of imageParts) {
+          const contentIdHeader = imagePart.headers?.find(
+            (h) => h.name.toLowerCase() === "content-id"
+          );
+
+          if (contentIdHeader) {
+            try {
+              const attachmentData = await fetchAttachment(
+                activeEmail,
+                mail.id,
+                imagePart.body.attachmentId
+              );
+
+              if (attachmentData) {
+                attachments.push({
+                  contentId: contentIdHeader.value.replace(/[<>]/g, ""),
+                  mimeType: imagePart.mimeType,
+                  data: attachmentData,
+                });
+              }
+            } catch (error) {
+              console.error(`Failed to fetch attachment: ${error.message}`);
+            }
+          }
         }
+      };
+
+      try {
+        // Handle direct content in payload body
+        if (payload?.body?.size > 0) {
+          htmlContent = payload.body.data;
+        } else {
+          // Process HTML content and attachments concurrently
+          await Promise.all([
+            findHtmlPart(payload?.parts),
+            processAttachments(payload?.parts),
+          ]);
+        }
+
+        // Process the HTML content only after both operations are complete
+        if (htmlContent) {
+          const normalizedContent = htmlContent
+            .replace(/-/g, "+")
+            .replace(/_/g, "/");
+          const decodedHtml = atob(normalizedContent);
+          return await processEmailContent(
+            decodedHtml,
+            attachments,
+            activeEmail
+          );
+        }
+
+        return null;
+      } catch (error) {
+        console.error("Error processing email content:", error);
+        return null;
       }
+    },
+    [activeEmail, mail.id]
+  );
 
-      return null; // No 'text/html' part found
-    };
-    if (payload?.body?.size > 0) {
-      return payload?.body?.data;
-    }
+  const processThreadMessages = useCallback(
+    async (messages) => {
+      if (!messages?.length) return [];
 
-    return findHtmlPart(payload?.parts) || null; // Start the search and return result
-  };
+      return Promise.all(
+        messages.map(async (thread) => {
+          const html = await extractEmailContent(thread?.payload);
+          const processedThreadHtml = decodeAndCleanContent(html);
+
+          return {
+            from: thread?.payload?.headers?.find((h) => h.name === "From")
+              ?.value,
+            to: thread?.payload?.headers?.find((h) => h.name === "To")?.value,
+            date: thread?.payload?.headers?.find((h) => h.name === "Date")
+              ?.value,
+            body: processedThreadHtml,
+          };
+        })
+      );
+    },
+    [extractEmailContent]
+  );
 
   const handleClick = async () => {
     setActiveInboxItem(mail.id);
@@ -71,34 +179,20 @@ const EmailCard = ({
         );
         setIsUnread(isUnread);
 
-        const base64urlData = extractHtmlPart(response.payload);
-        const body = base64urlData?.replace(/-/g, "+")?.replace(/_/g, "/");
+        const base64data = await extractEmailContent(response.payload);
 
-        const threadData = response?.threadData?.messages?.map((thread) => {
-          const html = extractHtmlPart(thread?.payload);
+        const processedHtml = decodeAndCleanContent(base64data);
 
-          const body = atob(html?.replace(/-/g, "+")?.replace(/_/g, "/"));
-
-          return {
-            from: thread?.payload?.headers?.filter(
-              (item) => item.name === "From"
-            )?.[0]?.value,
-            to: thread?.payload?.headers?.filter(
-              (item) => item.name === "To"
-            )?.[0]?.value,
-            date: thread?.payload?.headers?.filter(
-              (item) => item.name === "Date"
-            )?.[0]?.value,
-            body,
-          };
-        });
+        const threadData = await processThreadMessages(
+          response?.threadData?.messages
+        );
 
         const details = {
           from: response?.emailMetadata?.from,
           to: response?.emailMetadata?.to?.split(","),
           subject: response?.emailMetadata?.subject,
           date: response?.emailMetadata?.date,
-          body: atob(body),
+          body: processedHtml,
           threadData,
           id: response?.threadId,
           isUnread,

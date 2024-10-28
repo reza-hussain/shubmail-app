@@ -8,6 +8,7 @@ import {
   Skeleton,
   Space,
 } from "antd";
+import { decode } from "html-entities";
 import { Content } from "antd/es/layout/layout";
 import parse from "html-react-parser";
 
@@ -216,7 +217,7 @@ const MailDetails = ({ menu, messageOpen, setMessageOpen }) => {
     return draft;
   };
 
-  const cleanHTML = DOMPurify.sanitize(emailData?.body);
+  const cleanHTML = decode(DOMPurify.sanitize(emailData?.body));
 
   return (
     <Layout className="max-w-[60%] p-4 bg-white h-full">
@@ -229,10 +230,10 @@ const MailDetails = ({ menu, messageOpen, setMessageOpen }) => {
                 {mailLoader ? (
                   <Skeleton.Input size="small" className="!w-full" active />
                 ) : (
-                  <h4>{emailData?.from}</h4>
+                  <h4>{`From: ${emailData?.from}`}</h4>
                 )}
                 <div className="w-full flex justify-start items-center gap-4 flex-wrap">
-                  <p className="font-bold">To</p>
+                  <p className="font-bold">To:</p>
                   {mailLoader ? (
                     <Skeleton.Input size="small" className="!w-full" active />
                   ) : (
@@ -331,7 +332,6 @@ const MailDetails = ({ menu, messageOpen, setMessageOpen }) => {
                   setMessageOpen={setMessageOpen}
                   emailsToSend={emailsToSend}
                   setEmailsToSend={setEmailsToSend}
-                  body={messageOpen === 3 ? emailData?.body : null}
                   mailSubject={emailData?.subject ?? null}
                   editorState={editorState}
                   setEditorState={setEditorState}

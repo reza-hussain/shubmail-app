@@ -24,14 +24,16 @@ const ThreadItem = ({ data, isLastItem }) => {
     >
       <div
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex flex-col justify-start gap-2 items-start cursor-pointer"
+        className="w-full flex flex-col justify-start gap-[3px] items-start cursor-pointer"
       >
         <p>{data?.date}</p>
         <h3>From: {data?.from}</h3>
         <h4 className="text-gray-600 font-medium">To: {data?.to}</h4>
       </div>
 
-      {isExpanded ? parse(cleanHTML ?? "") : <></>}
+      <div className="w-full flex flex-col justify-start items-start">
+        {isExpanded ? parse(cleanHTML ?? "") : <></>}
+      </div>
     </div>
   );
 };
