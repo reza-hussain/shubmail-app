@@ -117,6 +117,7 @@ const MailDetails = ({ menu, messageOpen, setMessageOpen }) => {
           to: emailsToSend,
           from: emailData?.from,
           subject: emailData?.subject,
+          body: editorState,
         },
       });
 
