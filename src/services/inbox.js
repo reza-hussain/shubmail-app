@@ -1,8 +1,8 @@
 import axios from "axios";
 
-// axios.defaults.baseURL = "https://mail.taskauditor.com/api";
+axios.defaults.baseURL = "https://mail.taskauditor.com/api";
 
-axios.defaults.baseURL = "http://localhost:4000/api";
+// axios.defaults.baseURL = "http://localhost:4000/api";
 
 const fetchData = async (options) => {
   try {
